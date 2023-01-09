@@ -9,6 +9,8 @@ export { init };
 let WINDOW_WIDTH = 800;
 let WINDOW_HEIGHT = 800;
 
+const EPSILON = 0.01;
+
 // Tweak Pane Options
 const tweakParams = {
     color: 0xafadd5,
@@ -24,7 +26,7 @@ const renderer = new THREE.WebGLRenderer();
 const camera = new THREE.PerspectiveCamera(75, WINDOW_WIDTH / WINDOW_HEIGHT, 0.1, 1000);
 
 const maze = new THREE.Group();
-const cubes: THREE.Mesh[] = [];
+const objects: THREE.Object3D[] = [];
 
 function init() {
     console.log('Application starting...');
@@ -50,10 +52,15 @@ function init() {
     animate();
 }
 
-function addGeometry() {
+function addObject(obj: THREE.Object3D) {
+    maze.add(obj);
+    objects.push(obj);
+}
+
+function replaceGeomery() {
     // Remove old geometry
-    for (let cube of cubes) {
-        maze.remove(cube);
+    for (let obj of objects) {
+        maze.remove(obj);
     }
 
     const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -62,15 +69,50 @@ function addGeometry() {
         for (let c = 0; c < tweakParams.columns; c++) {
             for (let d = 0; d < tweakParams.depth; d++) {
                 const cube = new THREE.Mesh(geometry, material);
-                cube.position.x = (c - (tweakParams.columns - 1)/ 2) * tweakParams.spacing;
-                cube.position.y = (r - (tweakParams.rows - 1) / 2) * tweakParams.spacing;
-                cube.position.z = (d - (tweakParams.depth - 1) / 2) * tweakParams.spacing;
+                [ cube.position.x, cube.position.y, cube.position.z ] = posFromIndex(c, r, d);
 
-                cubes.push(cube);
-                maze.add(cube);
+                addObject(cube);
+                if (c < tweakParams.columns - 1) {
+                    addObject(connectFrom(c, r, d, 0));
+                }
+                if (r < tweakParams.rows - 1) {
+                    addObject(connectFrom(c, r, d, 1));
+                }
+                if (d < tweakParams.depth - 1) {
+                    addObject(connectFrom(c, r, d, 2));
+                }
             }
         }
     }
+}
+
+function connectFrom(c: number, r: number, d: number, dir: number): THREE.Mesh {
+    const posStart = posFromIndex(c, r, d);
+    const geometry = new THREE.CylinderGeometry(0.25, 0.25, tweakParams.spacing - 1 + 2 * EPSILON, 32);
+    const material = new THREE.MeshStandardMaterial({ color: tweakParams.color, opacity: 0.9, transparent: true });
+    const cylinder = new THREE.Mesh(geometry, material);
+    [ cylinder.position.x, cylinder.position.y, cylinder.position.z ] = posStart;
+    if (dir === 0) {
+        cylinder.rotateZ(Math.PI / 2);
+        cylinder.position.x += tweakParams.spacing / 2 + EPSILON;
+    }
+    if (dir === 1) {
+        cylinder.position.y += tweakParams.spacing / 2 + EPSILON;
+    }
+    if (dir === 2) {
+        cylinder.rotateX(Math.PI / 2);
+        cylinder.position.z += tweakParams.spacing / 2 + EPSILON;
+    }
+
+    return cylinder;
+}
+
+function posFromIndex(column: number, row: number, depth: number): [number, number, number] {
+    return [
+        (column - (tweakParams.columns - 1) / 2) * tweakParams.spacing,
+        (row - (tweakParams.rows - 1) / 2) * tweakParams.spacing,
+        (depth - (tweakParams.depth - 1) / 2) * tweakParams.spacing
+    ];
 }
 
 function initPane() {
@@ -94,8 +136,8 @@ function initPane() {
     pane.addInput(tweakParams, 'depth', { min: 1, max: 10, step: 1 });
     pane.addInput(tweakParams, 'spacing', { min: 1.5, max: 5, step: 0.1 });
 
-    addGeometry();
+    replaceGeomery();
     pane.on('change', () => {
-        addGeometry();
+        replaceGeomery();
     });
 }
