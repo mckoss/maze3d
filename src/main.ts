@@ -47,14 +47,10 @@ function init() {
         container: paneElement
     });
 
-    pane.addInput(tweakParams, 'color', { view: 'color' }).on('change', (ev) => {
-        for (let cube of cubes) {
-            cube.material.color.set(tweakParams.color);
-        }
-    });
+    pane.addInput(tweakParams, 'color', { view: 'color' });
 
     camera.position.z = tweakParams.z;
-    pane.addInput(tweakParams, 'z', { min: 2, max: 40, step: 0.1 }).on('change', (ev) => {
+    pane.addInput(tweakParams, 'z', { min: 2, max: 40, step: 0.1 }).on('change', (_ev) => {
         camera.position.z = tweakParams.z;
     });
     pane.addInput(tweakParams, 'rows', { min: 1, max: 10, step: 1 });
@@ -93,7 +89,6 @@ function addGeometry() {
         for (let c = 0; c < tweakParams.columns; c++) {
             for (let d = 0; d < tweakParams.depth; d++) {
                 const cube = new THREE.Mesh(geometry, material);
-                console.log(cube.position);
                 cube.position.x = (c - (tweakParams.columns - 1)/ 2) * tweakParams.spacing;
                 cube.position.y = (r - (tweakParams.rows - 1) / 2) * tweakParams.spacing;
                 cube.position.z = (d - (tweakParams.depth - 1) / 2) * tweakParams.spacing;
