@@ -33,7 +33,7 @@ jobs:
           node-version: 18.x
           cache: 'npm'
       - run: npm ci
-      - run: npm run build --if-present
+      - run: npm run build
       - name: Setup Pages
         uses: actions/configure-pages@v2
       - name: Build with Jekyll
@@ -43,6 +43,8 @@ jobs:
           destination: ./docs/_site
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./docs/_site
 
   # Deployment job
   deploy:
