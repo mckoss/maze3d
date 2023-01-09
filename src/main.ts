@@ -19,6 +19,7 @@ const tweakParams = {
     depth: 3,
     spacing: 1.8,
     z: 10,
+    y: 0,
 };
 
 const scene = new THREE.Scene();
@@ -127,9 +128,15 @@ function initPane() {
 
     pane.addInput(tweakParams, 'color', { view: 'color' });
 
+    camera.position.y = tweakParams.y;
+    pane.addInput(tweakParams, 'y', { min: -10, max: 10, step: 0.1 }).on('change', (_ev) => {
+        camera.position.y = tweakParams.y;
+        camera.lookAt(0, 0, 0);
+    });
     camera.position.z = tweakParams.z;
     pane.addInput(tweakParams, 'z', { min: 2, max: 40, step: 0.1 }).on('change', (_ev) => {
         camera.position.z = tweakParams.z;
+        camera.lookAt(0, 0, 0);
     });
     pane.addInput(tweakParams, 'rows', { min: 1, max: 10, step: 1 });
     pane.addInput(tweakParams, 'columns', { min: 1, max: 10, step: 1 });
