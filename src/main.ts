@@ -21,13 +21,13 @@ const tweakParams = {
 
 const scene = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer();
+const camera = new THREE.PerspectiveCamera(75, WINDOW_WIDTH / WINDOW_HEIGHT, 0.1, 1000);
 
+const maze = new THREE.Group();
 const cubes: THREE.Mesh[] = [];
 
 function init() {
     console.log('Application starting...');
-
-    const camera = new THREE.PerspectiveCamera(75, WINDOW_WIDTH / WINDOW_HEIGHT, 0.1, 1000);
 
     scene.background = new THREE.Color('lightgray');
 
@@ -35,9 +35,45 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     const light = new THREE.HemisphereLight(0xffffff, 0x202020, 1);
-    scene.add( light );
+    scene.add(light);
+    scene.add(maze);
 
-    camera.position.z = 5;
+    initPane();
+
+    function animate() {
+        requestAnimationFrame( animate );
+        renderer.render( scene, camera );
+
+        maze.rotation.y -= 0.01;
+    }
+
+    animate();
+}
+
+function addGeometry() {
+    // Remove old geometry
+    for (let cube of cubes) {
+        maze.remove(cube);
+    }
+
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.MeshStandardMaterial({ color: tweakParams.color, opacity: 0.9, transparent: true });
+    for (let r = 0; r < tweakParams.rows; r++) {
+        for (let c = 0; c < tweakParams.columns; c++) {
+            for (let d = 0; d < tweakParams.depth; d++) {
+                const cube = new THREE.Mesh(geometry, material);
+                cube.position.x = (c - (tweakParams.columns - 1)/ 2) * tweakParams.spacing;
+                cube.position.y = (r - (tweakParams.rows - 1) / 2) * tweakParams.spacing;
+                cube.position.z = (d - (tweakParams.depth - 1) / 2) * tweakParams.spacing;
+
+                cubes.push(cube);
+                maze.add(cube);
+            }
+        }
+    }
+}
+
+function initPane() {
     const paneElement = document.createElement('div');
     paneElement.className = 'tweak-pane';
     document.body.appendChild(paneElement);
@@ -62,41 +98,4 @@ function init() {
     pane.on('change', () => {
         addGeometry();
     });
-
-    function animate() {
-        requestAnimationFrame( animate );
-        renderer.render( scene, camera );
-
-        for (let cube of cubes) {
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
-        }
-    }
-
-    animate();
 }
-
-function addGeometry() {
-    // Remove old geometry
-    for (let cube of cubes) {
-        scene.remove(cube);
-    }
-    renderer.renderLists.dispose();
-
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshStandardMaterial({ color: tweakParams.color, opacity: 0.9, transparent: true });
-    for (let r = 0; r < tweakParams.rows; r++) {
-        for (let c = 0; c < tweakParams.columns; c++) {
-            for (let d = 0; d < tweakParams.depth; d++) {
-                const cube = new THREE.Mesh(geometry, material);
-                cube.position.x = (c - (tweakParams.columns - 1)/ 2) * tweakParams.spacing;
-                cube.position.y = (r - (tweakParams.rows - 1) / 2) * tweakParams.spacing;
-                cube.position.z = (d - (tweakParams.depth - 1) / 2) * tweakParams.spacing;
-
-                cubes.push(cube);
-                scene.add(cube);
-            }
-        }
-    }
-}
-
