@@ -19,7 +19,8 @@ const tweakParams = {
     depth: 3,
     spacing: 1.8,
     z: 10,
-    y: 0,
+    y: 6,
+    spin: false,
 };
 
 const scene = new THREE.Scene();
@@ -34,12 +35,19 @@ function init() {
 
     scene.background = new THREE.Color('lightgray');
 
-    renderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-    document.body.appendChild(renderer.domElement);
+    // renderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+    const canvas = renderer.domElement;
+    document.body.appendChild(canvas);
+    renderer.setSize(canvas.offsetWidth, canvas.offsetWidth);
 
     const light = new THREE.HemisphereLight(0xffffff, 0x202020, 1);
     scene.add(light);
     scene.add(maze);
+
+    replaceGeomery();
+    camera.position.y = tweakParams.y;
+    camera.position.z = tweakParams.z;
+    camera.lookAt(0, 0, 0);
 
     initPane();
 
@@ -47,7 +55,9 @@ function init() {
         requestAnimationFrame( animate );
         renderer.render( scene, camera );
 
-        maze.rotation.y -= 0.01;
+        if (tweakParams.spin) {
+            maze.rotation.y -= 0.01;
+        }
     }
 
     animate();
@@ -128,12 +138,10 @@ function initPane() {
 
     pane.addInput(tweakParams, 'color', { view: 'color' });
 
-    camera.position.y = tweakParams.y;
     pane.addInput(tweakParams, 'y', { min: -10, max: 10, step: 0.1 }).on('change', (_ev) => {
         camera.position.y = tweakParams.y;
         camera.lookAt(0, 0, 0);
     });
-    camera.position.z = tweakParams.z;
     pane.addInput(tweakParams, 'z', { min: 2, max: 40, step: 0.1 }).on('change', (_ev) => {
         camera.position.z = tweakParams.z;
         camera.lookAt(0, 0, 0);
@@ -142,8 +150,8 @@ function initPane() {
     pane.addInput(tweakParams, 'columns', { min: 1, max: 10, step: 1 });
     pane.addInput(tweakParams, 'depth', { min: 1, max: 10, step: 1 });
     pane.addInput(tweakParams, 'spacing', { min: 1.5, max: 5, step: 0.1 });
+    pane.addInput(tweakParams, 'spin');
 
-    replaceGeomery();
     pane.on('change', () => {
         replaceGeomery();
     });
