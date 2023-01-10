@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "mocha --ui tdd scripts/tests",
+    "test": "tsc && mocha --ui tdd scripts/tests",
     "coverage": "c8 --reporter=text --reporter=html npm test"
   },
   "devDependencies": {
