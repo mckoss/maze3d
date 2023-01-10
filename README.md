@@ -31,5 +31,5 @@ $ npm test
 Or, run tests with code coverage:
 
 ```
-$npm run coverage
+$ npm run coverage
 ```
