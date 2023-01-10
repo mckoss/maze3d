@@ -1,8 +1,9 @@
 import './style.css'
 
 import * as THREE from 'three';
-
 import { Pane } from 'tweakpane';
+
+import { buildMaze, coordFromIndex } from './maze-scaffold.js';
 
 export { init };
 
@@ -76,6 +77,7 @@ function replaceGeomery() {
 
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshStandardMaterial({ color: tweakParams.color, opacity: 0.9, transparent: true });
+
     for (let r = 0; r < tweakParams.rows; r++) {
         for (let c = 0; c < tweakParams.columns; c++) {
             for (let d = 0; d < tweakParams.depth; d++) {
@@ -83,17 +85,16 @@ function replaceGeomery() {
                 [ cube.position.x, cube.position.y, cube.position.z ] = posFromIndex(c, r, d);
 
                 addObject(cube);
-                if (c < tweakParams.columns - 1) {
-                    addObject(connectFrom(c, r, d, 0));
-                }
-                if (r < tweakParams.rows - 1) {
-                    addObject(connectFrom(c, r, d, 1));
-                }
-                if (d < tweakParams.depth - 1) {
-                    addObject(connectFrom(c, r, d, 2));
-                }
             }
         }
+    }
+
+    const mazeGraph = buildMaze(tweakParams.rows, tweakParams.columns, tweakParams.depth);
+    let edge: [number, number] | undefined;
+    while ((edge = mazeGraph.nextEdge()) !== undefined) {
+        const [c, r, d] = coordFromIndex(edge[0], tweakParams.rows, tweakParams.columns);
+        console.log(edge, c, r, d);
+        addObject(connectFrom(c, r, d, edge[1]));
     }
 }
 
