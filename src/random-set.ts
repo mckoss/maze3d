@@ -1,4 +1,4 @@
-export { RandomSet, shuffle, randInt };
+export { RandomSet, randInt };
 
 // Implement a set from which elemeents can be removed at random.
 
@@ -11,24 +11,23 @@ class RandomSet<T> {
     }
 
     next(): T | undefined {
-        // Shuffle on first use
-        if (this.init) {
-            this.init = false;
-            shuffle(this.values);
-        }
-        return this.values.pop();
+        let result = this.peek();
+        this.deleteLast();
+        return result;
+    }
+
+    peek(): T | undefined {
+        let i = randInt(this.values.length);
+        [this.values[i], this.values[this.values.length - 1]] = [this.values[this.values.length - 1], this.values[i]];
+        return this.values[this.values.length - 1];
+    }
+
+    deleteLast() {
+        this.values.pop();
     }
 
     get size(): number {
         return this.values.length;
-    }
-}
-
-function shuffle<T>(a: T[]) {
-    for (let i = 0; i < a.length; i++) {
-        const j = randInt(a.length, i);
-        // Swap ith and jth elements.
-        [a[i], a[j]] = [a[j], a[i]];
     }
 }
 
