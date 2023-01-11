@@ -47,6 +47,10 @@ class Maze<Cell, Edge> {
     }
 
     nextEdge(): Edge | undefined {
+        if (this.visited.size === this.cellCount) {
+            return undefined;
+        }
+
         // Try to deepen the current path to a neighboring cell.
         if (this.current !== undefined && this.depth < this.depthLimit) {
             let edge = this.findEdge();
@@ -59,6 +63,8 @@ class Maze<Cell, Edge> {
         // neighbor.  We remove frontier cells if all their neighbors have
         // been visited.
         while (this.frontier.size > 0) {
+            console.log(`Restarting after ${this.depth} cells (${this.visited.size} visited, ${this.frontier.size} remain)`);
+            this.depth = 0;
             this.current = this.frontier.peek()!;
             let edge = this.findEdge();
             if (edge !== undefined) {
@@ -95,5 +101,9 @@ class Maze<Cell, Edge> {
         this.visited.add(cell);
         this.frontier.add(cell);
         this.depth += 1;
+    }
+
+    get cellCount(): number {
+        return this.neighbors.size;
     }
 }

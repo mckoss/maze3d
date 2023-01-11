@@ -16,11 +16,11 @@ const tweakParams = {
     color: 0xafadd5,
     rows: 5,
     columns: 5,
-    depth: 3,
-    spacing: 1.8,
-    z: 10,
-    y: 6,
-    spin: false,
+    depth: 5,
+    spacing: 2.7,
+    z: 17,
+    y: 9,
+    spin: true,
 };
 
 const scene = new THREE.Scene();
