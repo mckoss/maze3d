@@ -7,10 +7,9 @@ import { buildMaze, coordFromIndex } from './maze-scaffold.js';
 
 export { init };
 
-let WINDOW_WIDTH = 800;
-let WINDOW_HEIGHT = 800;
-
 const EPSILON = 0.01;
+
+let divApp: HTMLDivElement;
 
 // Tweak Pane Options
 const tweakParams = {
@@ -26,19 +25,22 @@ const tweakParams = {
 
 const scene = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer();
-const camera = new THREE.PerspectiveCamera(75, WINDOW_WIDTH / WINDOW_HEIGHT, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
 
 const maze = new THREE.Group();
 const objects: THREE.Object3D[] = [];
 
+let edges: [number, number][] | undefined;
+
 function init() {
+    divApp = document.getElementById('app') as HTMLDivElement;
+
     console.log('Application starting...');
 
     scene.background = new THREE.Color('lightgray');
 
-    // renderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     const canvas = renderer.domElement;
-    document.body.appendChild(canvas);
+    divApp.appendChild(canvas);
     renderer.setSize(canvas.offsetWidth, canvas.offsetWidth);
 
     const light = new THREE.HemisphereLight(0xffffff, 0x202020, 1);
@@ -89,11 +91,17 @@ function replaceGeomery() {
         }
     }
 
-    const mazeGraph = buildMaze(tweakParams.rows, tweakParams.columns, tweakParams.depth);
-    let edge: [number, number] | undefined;
-    while ((edge = mazeGraph.nextEdge()) !== undefined) {
+    if (edges === undefined) {
+        let mazeGraph = buildMaze(tweakParams.rows, tweakParams.columns, tweakParams.depth);
+        edges = [];
+        let edge: [number, number] | undefined;
+        while ((edge = mazeGraph.nextEdge()) !== undefined) {
+            edges.push(edge);
+        }
+    }
+
+    for (let edge of edges) {
         const [c, r, d] = coordFromIndex(edge[0], tweakParams.rows, tweakParams.columns);
-        console.log(edge, c, r, d);
         addObject(connectFrom(c, r, d, edge[1]));
     }
 }
@@ -130,7 +138,7 @@ function posFromIndex(column: number, row: number, depth: number): [number, numb
 function initPane() {
     const paneElement = document.createElement('div');
     paneElement.className = 'tweak-pane';
-    document.body.appendChild(paneElement);
+    divApp.appendChild(paneElement);
 
     const pane = new Pane({
         title: '3D Maze Options',
@@ -147,9 +155,15 @@ function initPane() {
         camera.position.z = tweakParams.z;
         camera.lookAt(0, 0, 0);
     });
-    pane.addInput(tweakParams, 'rows', { min: 1, max: 10, step: 1 });
-    pane.addInput(tweakParams, 'columns', { min: 1, max: 10, step: 1 });
-    pane.addInput(tweakParams, 'depth', { min: 1, max: 10, step: 1 });
+    pane.addInput(tweakParams, 'rows', { min: 1, max: 10, step: 1 }).on('change', (_ev) => {
+        edges = undefined;
+    });
+    pane.addInput(tweakParams, 'columns', { min: 1, max: 10, step: 1 }).on('change', (_ev) => {
+        edges = undefined;
+    });
+    pane.addInput(tweakParams, 'depth', { min: 1, max: 10, step: 1 }).on('change', (_ev) => {
+        edges = undefined;
+    });
     pane.addInput(tweakParams, 'spacing', { min: 1.5, max: 5, step: 0.1 });
     pane.addInput(tweakParams, 'spin');
 
