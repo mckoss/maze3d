@@ -79,14 +79,20 @@ function replaceGeomery() {
 
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshStandardMaterial({ color: tweakParams.color, opacity: 0.9, transparent: true });
+    const startMaterial = new THREE.MeshStandardMaterial({ color: 'red' });
+    const endMaterial = new THREE.MeshStandardMaterial({ color: 'green' });
 
+    let index = 0;
+    let lastIndex = (tweakParams.rows * tweakParams.columns * tweakParams.depth) - 1;
     for (let r = 0; r < tweakParams.rows; r++) {
         for (let c = 0; c < tweakParams.columns; c++) {
             for (let d = 0; d < tweakParams.depth; d++) {
-                const cube = new THREE.Mesh(geometry, material);
+                let m = index === 0 ? startMaterial : (index === lastIndex) ? endMaterial : material;
+                const cube = new THREE.Mesh(geometry, m);
                 [ cube.position.x, cube.position.y, cube.position.z ] = posFromIndex(c, r, d);
 
                 addObject(cube);
+                index++;
             }
         }
     }
