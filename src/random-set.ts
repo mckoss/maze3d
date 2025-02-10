@@ -1,6 +1,6 @@
 export { RandomSet, randInt };
 
-// Implement a set from which elemeents can be removed at random.
+// Implement a set from which elements can be removed at random.
 
 class RandomSet<T> {
     values: T[] = [];

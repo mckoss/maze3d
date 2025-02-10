@@ -63,7 +63,6 @@ class Maze<Cell, Edge> {
         // neighbor.  We remove frontier cells if all their neighbors have
         // been visited.
         while (this.frontier.size > 0) {
-            console.log(`Restarting after ${this.depth} cells (${this.visited.size} visited, ${this.frontier.size} remain)`);
             this.depth = 0;
             this.current = this.frontier.peek()!;
             let edge = this.findEdge();

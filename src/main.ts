@@ -35,8 +35,6 @@ let edges: [number, number][] | undefined;
 function init() {
     divApp = document.getElementById('app') as HTMLDivElement;
 
-    console.log('Application starting...');
-
     scene.background = new THREE.Color('lightgray');
 
     const canvas = renderer.domElement;

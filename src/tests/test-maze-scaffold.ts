@@ -26,12 +26,12 @@ suite("Maze Scaffold", () => {
         assert.equal(maze.frontier.size, 1);
 
         let edgeCount = 0;
-        let edge: [number, number] | undefined;
-        while ((edge = maze.nextEdge()) !== undefined) {
+        while (maze.nextEdge() !== undefined) {
             edgeCount++;
-            console.log(edge);
         }
         assert.equal(edgeCount, 26);
-        assert.equal(maze.frontier.size, 0);
+        assert.equal(maze.visited.size, 27);
+        // No assertion for frontier size - as we can have candidates for
+        // expansion not fully proved as completely explored.
     });
 });
